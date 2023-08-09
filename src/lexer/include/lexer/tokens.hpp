@@ -1,0 +1,23 @@
+#ifndef STACKLANG_TOKENS_HPP
+#define STACKLANG_TOKENS_HPP
+
+namespace stacklang
+{
+#define TOKEN_LIST_KEYWORD \
+    CREATE_TOKEN_KEYWORD(PUSH, "push") \
+    CREATE_TOKEN_KEYWORD(POP, "pop") \
+    CREATE_TOKEN_KEYWORD(JI, "ji") \
+    CREATE_TOKEN_KEYWORD(JMP, "jmp") \
+    CREATE_TOKEN_KEYWORD(WRITE, "write") \
+    CREATE_TOKEN_KEYWORD(READ, "read") \
+    CREATE_TOKEN_KEYWORD(END, "end")
+
+#define TOKEN_LIST \
+    CREATE_TOKEN(VAR, "variable") \
+    CREATE_TOKEN(CONST, "constant") \
+    CREATE_TOKEN(ERROR, "error") \
+    CREATE_TOKEN(NEWLINE, "newline") \
+    CREATE_TOKEN(END_OF_FILE, "EOF")
+}
+
+#endif //STACKLANG_TOKENS_HPP
