@@ -17,7 +17,19 @@ namespace stacklang
     CREATE_TOKEN(CONST, "constant") \
     CREATE_TOKEN(ERROR, "error") \
     CREATE_TOKEN(NEWLINE, "newline") \
-    CREATE_TOKEN(END_OF_FILE, "EOF")
+    CREATE_TOKEN(END_OF_FILE, "EOF") \
+    CREATE_TOKEN(PLUS, "+") \
+    CREATE_TOKEN(MINUS, "-") \
+    CREATE_TOKEN(MULTIPLY, "*") \
+    CREATE_TOKEN(DIV, "/") \
+    CREATE_TOKEN(MOD, "%") \
+    CREATE_TOKEN(LESS, "<") \
+    CREATE_TOKEN(GREATER, ">") \
+    CREATE_TOKEN(EQUAL, "=") \
+    CREATE_TOKEN(LESS_EQUAL, "<=") \
+    CREATE_TOKEN(GREATER_EQUAL, ">=") \
+    CREATE_TOKEN(NOT_EQUAL, "!=") \
+    CREATE_TOKEN(NOT, "!")
 }
 
 #endif //STACKLANG_TOKENS_HPP

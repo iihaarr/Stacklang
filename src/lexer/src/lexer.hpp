@@ -13,11 +13,18 @@ namespace stacklang
         explicit Lexer(std::string_view code_);
         Token NextToken() override;
     private:
-        void handlerUnexpectedSymbol(Location location_);
+        void handleUnexpectedSymbol(Location location_);
+        void handleNotRelationWithoutOtherSymRel(Location location_);
+        void handleRelationError(Location location_);
         void skipError();
+        void printLineError(Location location_);
         Token handleIdentifier();
         Token handleConstant();
         Token handleNewLine();
+        Token handleRelation();
+        char nextChar();
+        char currentChar();
+        void revertChar();
     private:
         std::string m_code;
         std::string m_buffer;

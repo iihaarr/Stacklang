@@ -35,3 +35,28 @@ TEST(LexerTestTokens, BasicAssertions)
         }
     }
 }
+TEST(LexerTestRelationsToken, BasicAssertions)
+{
+    using namespace stacklang;
+    const auto code = "< > <= >= = != ! <! !>";
+    auto lexer = GetLexer(code);
+    std::vector<Token> tokens;
+    for (auto token = lexer->NextToken(); token.m_type != Token::Type::END_OF_FILE; token = lexer->NextToken())
+    {
+        if (token.m_type != Token::Type::ERROR)
+            tokens.emplace_back(std::move(token));
+    }
+    Location emptyLocation{};
+    std::vector<Token> expectedTokens;
+    expectedTokens.emplace_back(Token::Type::LESS, emptyLocation);
+    expectedTokens.emplace_back(Token::Type::GREATER, emptyLocation);
+    expectedTokens.emplace_back(Token::Type::LESS_EQUAL, emptyLocation);
+    expectedTokens.emplace_back(Token::Type::GREATER_EQUAL, emptyLocation);
+    expectedTokens.emplace_back(Token::Type::EQUAL, emptyLocation);
+    expectedTokens.emplace_back(Token::Type::NOT_EQUAL, emptyLocation);
+    EXPECT_TRUE(tokens.size() == expectedTokens.size());
+    for (std::size_t i = 0; i < tokens.size(); ++i)
+    {
+        EXPECT_TRUE(tokens[i].m_type == expectedTokens[i].m_type);
+    }
+}
