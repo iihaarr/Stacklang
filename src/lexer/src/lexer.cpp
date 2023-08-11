@@ -25,6 +25,10 @@ namespace stacklang
     {
         return ch_ == '=' || ch_ == '>' || ch_ == '<' || ch_ == '!';
     }
+    bool isOperator(char ch_)
+    {
+        return ch_ == '+' || ch_ == '-' || ch_ == '*' || ch_ == '%' || ch_ == '/';
+    }
     Token::Type getTypeRelationByChar(char ch_)
     {
         switch (ch_)
@@ -67,16 +71,29 @@ namespace stacklang
         default: return Token::Type::ERROR;
         }
     }
+    Token::Type getTypeOperator(char ch_)
+    {
+        switch (ch_)
+        {
+        case '+': return Token::Type::PLUS;
+        case '-': return Token::Type::MINUS;
+        case '*': return Token::Type::MULTIPLY;
+        case '/': return Token::Type::DIV;
+        case '%': return Token::Type::MOD;
+        default: return Token::Type::ERROR;
+        }
+    }
     Token Lexer::NextToken()
     {
         std::size_t beginIdx = m_currentCharIdx;
         for(; m_currentCharIdx < m_code.size(); ++m_currentCharIdx)
         {
-            if(std::isalpha(m_code[m_currentCharIdx])) return handleIdentifier();
-            if(std::isdigit(m_code[m_currentCharIdx])) return handleConstant();
-            if(m_code[m_currentCharIdx] == kNewLine) return handleNewLine();
-            if(std::isspace(m_code[m_currentCharIdx])) continue;
-            if (isRelation(m_code[m_currentCharIdx])) return handleRelation();
+            if(std::isalpha(currentChar())) return handleIdentifier();
+            if(std::isdigit(currentChar())) return handleConstant();
+            if(currentChar() == kNewLine) return handleNewLine();
+            if(std::isspace(currentChar())) continue;
+            if (isRelation(currentChar())) return handleRelation();
+            if (isOperator(currentChar())) return handleOperator();
 
             Location locationUndefinedSymbol{beginIdx, m_currentCharIdx, m_currentLine};
             handleUnexpectedSymbol(locationUndefinedSymbol);
@@ -186,6 +203,13 @@ namespace stacklang
             }
             return MakeToken(typeRel, location);
         }
+    }
+    Token Lexer::handleOperator()
+    {
+        Location loc{ m_currentCharIdx, m_currentCharIdx, m_currentLine };
+        char opCh = currentChar();
+        ++m_currentCharIdx;
+        return MakeToken(getTypeOperator(opCh), loc);
     }
     char Lexer::nextChar()
     {

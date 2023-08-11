@@ -22,6 +22,7 @@ namespace stacklang
         Token handleConstant();
         Token handleNewLine();
         Token handleRelation();
+        Token handleOperator();
         char nextChar();
         char currentChar();
         void revertChar();
