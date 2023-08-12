@@ -4,7 +4,7 @@
 #include <string>
 #include "ast_nodes.hpp"
 
-namespace stacklang
+namespace stacklang::parser
 {
 	struct IParser
 	{

@@ -5,7 +5,7 @@
 #include "lexer/location.hpp"
 #include "lexer/lexer_interface.hpp"
 
-namespace stacklang
+namespace stacklang::lexer
 {
     class Lexer : public ILexer
     {

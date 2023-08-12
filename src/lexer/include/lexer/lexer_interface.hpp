@@ -3,7 +3,7 @@
 
 #include "lexer/token.hpp"
 
-namespace stacklang
+namespace stacklang::lexer
 {
     struct ILexer
     {

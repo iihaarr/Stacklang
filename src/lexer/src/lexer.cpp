@@ -3,10 +3,11 @@
 #include "lexer.hpp"
 #include "lexer/lexer_interface.hpp"
 
-namespace stacklang
+namespace stacklang::lexer
 {
     static constexpr auto kNewLine = '\n';
     static constexpr auto kCommentCh = ';';
+    static constexpr auto kSpace = ' ';
     static constexpr std::size_t kMaxLenErrorStrHelp = 64;
 #define CREATE_TOKEN_KEYWORD(name, value) {Token::Type::name, value },
     static std::initializer_list<std::pair<Token::Type, std::string>> kKeywords
@@ -92,7 +93,7 @@ namespace stacklang
             if (std::isalpha(currentChar())) return handleIdentifier();
             if (std::isdigit(currentChar())) return handleConstant();
             if (currentChar() == kNewLine) return handleNewLine();
-            if (std::isspace(currentChar())) continue;
+            if (currentChar() == kSpace) continue;
             if (isRelation(currentChar())) return handleRelation();
             if (isOperator(currentChar())) return handleOperator();
             if (currentChar() == kCommentCh)
@@ -279,5 +280,6 @@ namespace stacklang
             std::cout << ' ';
         }
         std::cout << "^ HERE\n";
+        std::cout << "----------------------\n";
     }
 }

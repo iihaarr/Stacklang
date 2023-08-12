@@ -7,8 +7,9 @@
 #include "parser/parser_interface.hpp"
 #include <string_view>
 
-namespace stacklang
+namespace stacklang::parser
 {
+	using namespace lexer;
 	class Parser : public IParser
 	{
 		using ParserTokenHandler = std::unique_ptr<BaseAstNode>(Parser::*)(const Token&);

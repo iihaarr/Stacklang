@@ -6,45 +6,48 @@
 #include <string>
 #include "lexer/token.hpp"
 
-namespace stacklang
+namespace stacklang::parser
 {
+	using namespace lexer;
+
 	struct BaseAstNode
 	{
-		BaseAstNode(Token::Type type_);
+		BaseAstNode(Token::Type type_, std::size_t line_);
 
 		Token::Type m_type;
+		std::size_t m_line;
 	};
 	struct ValueableAstNode : public BaseAstNode
 	{
-		ValueableAstNode(Token::Type type_, std::string value_);
+		ValueableAstNode(Token::Type type_, std::size_t line_, std::string value_);
 
 		std::string m_value;
 	};
 	struct NoOperandCommandAstNode : public BaseAstNode
 	{
-		NoOperandCommandAstNode(Token::Type commandType_);
+		NoOperandCommandAstNode(Token::Type commandType_, std::size_t line_);
 	};
 	struct SingleCommandAstNode : public BaseAstNode
 	{
-		SingleCommandAstNode(Token::Type commandType_, std::unique_ptr<ValueableAstNode> pOperand_);
+		SingleCommandAstNode(Token::Type commandType_, std::size_t line_, std::unique_ptr<ValueableAstNode> pOperand_);
 
 		std::unique_ptr<ValueableAstNode> m_pOperand;
 	};
 	struct OperatorAstNode : public BaseAstNode
 	{
-		OperatorAstNode(Token::Type operatorType_);
+		OperatorAstNode(Token::Type operatorType_, std::size_t line_);
 	};
 	struct RelationAstNode : public BaseAstNode
 	{
-		RelationAstNode(Token::Type operatorType_);
+		RelationAstNode(Token::Type operatorType_, std::size_t line_);
 	};
 	struct VariableAstNode : public ValueableAstNode
 	{
-		VariableAstNode(std::string value_);
+		VariableAstNode(std::size_t line_, std::string value_);
 	};
 	struct ConstantAstNode : public ValueableAstNode
 	{
-		ConstantAstNode(std::string value_);
+		ConstantAstNode(std::size_t line_, std::string value_);
 	};
 
 	template<typename T, typename... Args>

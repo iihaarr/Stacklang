@@ -3,7 +3,7 @@
 
 TEST(LexerTestTokens, BasicAssertions)
 {
-    using namespace stacklang;
+    using namespace stacklang::lexer;
     const auto code = "push pop;12313\n hello 123123\n12312k111 write\n read\n+;12312312\n - % / >=;131231";
     auto lexer = GetLexer(code);
     std::vector<Token> tokens;
@@ -42,7 +42,7 @@ TEST(LexerTestTokens, BasicAssertions)
 }
 TEST(LexerTestRelationsToken, BasicAssertions)
 {
-    using namespace stacklang;
+    using namespace stacklang::lexer;
     const auto code = "< > <= >= = != ! <! !>";
     auto lexer = GetLexer(code);
     std::vector<Token> tokens;

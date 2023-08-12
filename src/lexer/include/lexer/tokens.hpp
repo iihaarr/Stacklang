@@ -1,7 +1,7 @@
 #ifndef STACKLANG_TOKENS_HPP
 #define STACKLANG_TOKENS_HPP
 
-namespace stacklang
+namespace stacklang::lexer
 {
 #define TOKEN_LIST_KEYWORD \
     CREATE_TOKEN_KEYWORD(PUSH, "push") \

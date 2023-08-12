@@ -3,14 +3,17 @@
 #include "parser/parser_interface.hpp"
 #include "parser.hpp"
 
-namespace stacklang
+namespace stacklang::parser
 {
+	using namespace lexer;
+
 	static constexpr auto kNewLine = '\n';
 	static constexpr std::size_t kMaxLenErrorStrHelp = 64;
 	static constexpr auto kExpectedConstOrVar = "Expected token 'CONST' or 'VAR', got '";
 	static constexpr auto kExpectedNewLine = "Expected token 'NEWLINE' or 'EOF', got '";
 	static constexpr auto kExpectedConst = "Expected token 'CONST', got '";
 	static constexpr auto kExpectedVar = "Expected token 'VAR', got '";
+	static constexpr auto kUnexpectedToken = "Unexpected Token '";
 
 	std::unique_ptr<IParser> GetParser(std::string_view code_)
 	{
@@ -39,6 +42,10 @@ namespace stacklang
 		m_tokenHandlers.insert({ Token::Type::GREATER_EQUAL, &Parser::handleRelation });
 		m_tokenHandlers.insert({ Token::Type::LESS, &Parser::handleRelation });
 		m_tokenHandlers.insert({ Token::Type::LESS_EQUAL, &Parser::handleRelation });
+
+		m_tokenHandlers.insert({ Token::Type::VAR , &Parser::handleError });
+		m_tokenHandlers.insert({ Token::Type::CONST , &Parser::handleError });
+		m_tokenHandlers.insert({ Token::Type::NEWLINE , &Parser::handleError });
 	}
 
 	bool isConst(Token::Type type_)
@@ -90,8 +97,8 @@ namespace stacklang
 
 	std::unique_ptr<BaseAstNode> Parser::handleError(const Token& errorToken_)
 	{
-		skipError();
-		return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+		printExpected(kUnexpectedToken, errorToken_.m_location, errorToken_.m_type);
+		return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 	}
 
 	void Parser::printLineError(Location location_) const
@@ -110,6 +117,7 @@ namespace stacklang
 			std::cout << ' ';
 		}
 		std::cout << "^ HERE\n";
+		std::cout << "----------------------\n";
 	}
 
 	std::unique_ptr<BaseAstNode> Parser::handlePushCommand(const Token& pushToken_)
@@ -121,17 +129,17 @@ namespace stacklang
 			auto pushBeginIdx = token.m_location.m_begin;
 			for (; code[pushBeginIdx] != 'p'; --pushBeginIdx);
 			printExpected(kExpectedConstOrVar, Location{ pushBeginIdx, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		auto valueableNode = MakeASTNodeAs<ValueableAstNode>(token.m_type, *token.m_text);
+		auto valueableNode = MakeASTNodeAs<ValueableAstNode>(token.m_type, token.m_location.m_line, *token.m_text);
 		const auto valueNodeLocation = token.m_location;
 		token = m_pLexer->NextToken();
 		if (!isNewLineOrEOF(token.m_type))
 		{
 			printExpected(kExpectedNewLine, Location{ valueNodeLocation.m_begin, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		return MakeASTNode<SingleCommandAstNode>(Token::Type::PUSH, std::move(valueableNode));
+		return MakeASTNode<SingleCommandAstNode>(Token::Type::PUSH, token.m_location.m_line, std::move(valueableNode));
 	}
 
 	std::unique_ptr<BaseAstNode> Parser::handlePopCommand(const Token& popToken_)
@@ -144,17 +152,17 @@ namespace stacklang
 			for (; code[popBeginIdx] != 'p'; --popBeginIdx);
 			popBeginIdx -= 2;
 			printExpected(kExpectedVar, Location{ popBeginIdx, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		auto varNode = MakeASTNodeAs<VariableAstNode>(*token.m_text);
+		auto varNode = MakeASTNodeAs<VariableAstNode>(token.m_location.m_line, *token.m_text);
 		const auto varNodeLocation = token.m_location;
 		token = m_pLexer->NextToken();
 		if (!isNewLineOrEOF(token.m_type))
 		{
 			printExpected(kExpectedNewLine, Location{ varNodeLocation.m_begin, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		return MakeASTNode<SingleCommandAstNode>(Token::Type::POP, std::move(varNode));
+		return MakeASTNode<SingleCommandAstNode>(Token::Type::POP, token.m_location.m_line, std::move(varNode));
 	}
 
 	std::unique_ptr<BaseAstNode> Parser::handleJiCommand(const Token& jiToken_)
@@ -166,17 +174,17 @@ namespace stacklang
 			auto popBeginIdx = token.m_location.m_begin;
 			for (; code[popBeginIdx] != 'j'; --popBeginIdx);
 			printExpected(kExpectedConst, Location{ popBeginIdx, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		auto constNode = MakeASTNodeAs<ConstantAstNode>(*token.m_text);
+		auto constNode = MakeASTNodeAs<ConstantAstNode>(token.m_location.m_line, *token.m_text);
 		const auto constNodeLocation = token.m_location;
 		token = m_pLexer->NextToken();
 		if (!isNewLineOrEOF(token.m_type))
 		{
 			printExpected(kExpectedNewLine, Location{ constNodeLocation.m_begin, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		return MakeASTNode<SingleCommandAstNode>(Token::Type::JI, std::move(constNode));
+		return MakeASTNode<SingleCommandAstNode>(Token::Type::JI, token.m_location.m_line, std::move(constNode));
 	}
 
 	std::unique_ptr<BaseAstNode> Parser::handleJmpCommand(const Token& jmpToken_)
@@ -188,17 +196,17 @@ namespace stacklang
 			auto popBeginIdx = token.m_location.m_begin;
 			for (; code[popBeginIdx] != 'j'; --popBeginIdx);
 			printExpected(kExpectedConst, Location{ popBeginIdx, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		auto constNode = MakeASTNodeAs<ConstantAstNode>(*token.m_text);
+		auto constNode = MakeASTNodeAs<ConstantAstNode>(token.m_location.m_line, *token.m_text);
 		const auto constNodeLocation = token.m_location;
 		token = m_pLexer->NextToken();
 		if (!isNewLineOrEOF(token.m_type))
 		{
 			printExpected(kExpectedNewLine, Location{ constNodeLocation.m_begin, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		return MakeASTNode<SingleCommandAstNode>(Token::Type::JMP, std::move(constNode));
+		return MakeASTNode<SingleCommandAstNode>(Token::Type::JMP, token.m_location.m_line, std::move(constNode));
 	}
 
 	std::unique_ptr<BaseAstNode> Parser::handleReadCommand(const Token& readToken_)
@@ -207,9 +215,9 @@ namespace stacklang
 		if (!isNewLineOrEOF(token.m_type))
 		{
 			printExpected(kExpectedNewLine, Location{ readToken_.m_location.m_begin, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		return MakeASTNode<NoOperandCommandAstNode>(Token::Type::READ);
+		return MakeASTNode<NoOperandCommandAstNode>(Token::Type::READ, token.m_location.m_line);
 	}
 
 	std::unique_ptr<BaseAstNode> Parser::handleWriteCommand(const Token& writeToken_)
@@ -218,9 +226,9 @@ namespace stacklang
 		if (!isNewLineOrEOF(token.m_type))
 		{
 			printExpected(kExpectedNewLine, Location{ writeToken_.m_location.m_begin, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		return MakeASTNode<NoOperandCommandAstNode>(Token::Type::WRITE);
+		return MakeASTNode<NoOperandCommandAstNode>(Token::Type::WRITE, token.m_location.m_line);
 	}
 
 	std::unique_ptr<BaseAstNode> Parser::handleEndCommand(const Token& endToken_)
@@ -229,9 +237,9 @@ namespace stacklang
 		if (!isNewLineOrEOF(token.m_type))
 		{
 			printExpected(kExpectedNewLine, Location{ endToken_.m_location.m_begin, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		return MakeASTNode<NoOperandCommandAstNode>(Token::Type::END);
+		return MakeASTNode<NoOperandCommandAstNode>(Token::Type::END, token.m_location.m_line);
 	}
 
 	std::unique_ptr<BaseAstNode> Parser::handleOperator(const Token& opToken_)
@@ -240,9 +248,9 @@ namespace stacklang
 		if (!isNewLineOrEOF(token.m_type))
 		{
 			printExpected(kExpectedNewLine, Location{ opToken_.m_location.m_begin, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		return MakeASTNode<OperatorAstNode>(opToken_.m_type);
+		return MakeASTNode<OperatorAstNode>(opToken_.m_type, token.m_location.m_line);
 	}
 
 	std::unique_ptr<BaseAstNode> Parser::handleRelation(const Token& relToken_)
@@ -251,14 +259,14 @@ namespace stacklang
 		if (!isNewLineOrEOF(token.m_type))
 		{
 			printExpected(kExpectedNewLine, Location{ relToken_.m_location.m_begin, token.m_location.m_begin, token.m_location.m_line }, token.m_type);
-			return MakeASTNode<BaseAstNode>(Token::Type::ERROR);
+			return MakeASTNode<BaseAstNode>(Token::Type::ERROR, 0);
 		}
-		return MakeASTNode<RelationAstNode>(relToken_.m_type);
+		return MakeASTNode<RelationAstNode>(relToken_.m_type, token.m_location.m_line);
 	}
 
 	void Parser::printExpected(std::string_view errorMsg_, Location loc_, Token::Type typeGot_)
 	{
-		std::cout << "Syntax error on line " << loc_.m_line << ": " << errorMsg_ << GetTokenDescription(typeGot_) << "'\n";
+		std::cout << "Error on line " << loc_.m_line << ": " << errorMsg_ << GetTokenDescription(typeGot_) << "'\n";
 
 		printLineError(loc_);
 	}

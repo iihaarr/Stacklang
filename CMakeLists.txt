@@ -12,8 +12,9 @@ add_subdirectory(lib/googletest)
 
 add_subdirectory(src/lexer)
 add_subdirectory(src/parser)
+add_subdirectory(src/interpreter)
 
 add_subdirectory(tests)
 add_executable(Stacklang src/main.cpp)
 
-target_link_libraries(Stacklang gtest gtest_main)
+target_link_libraries(Stacklang gtest gtest_main interpreter parser)

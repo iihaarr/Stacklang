@@ -7,7 +7,7 @@
 #include "tokens.hpp"
 #include "lexer/location.hpp"
 
-namespace stacklang
+namespace stacklang::lexer
 {
     struct Token
     {

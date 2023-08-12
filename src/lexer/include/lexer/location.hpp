@@ -3,7 +3,7 @@
 
 #include <cctype>
 
-namespace stacklang
+namespace stacklang::lexer
 {
     struct Location
     {

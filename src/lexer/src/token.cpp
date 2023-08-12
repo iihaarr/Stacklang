@@ -1,7 +1,7 @@
 #include "lexer/token.hpp"
 #include "lexer/location.hpp"
 
-namespace stacklang
+namespace stacklang::lexer
 {
     Token::Token(Token::Type type_, Location location_)
         : m_type(type_), m_location(location_), m_text(nullptr)
@@ -22,7 +22,7 @@ namespace stacklang
             return descr_;
 #define CREATE_TOKEN_KEYWORD(name, value) CREATE_TOKEN(name, value)
             TOKEN_LIST_KEYWORD
-            TOKEN_LIST
+                TOKEN_LIST
 #undef CREATE_TOKEN
 #undef CREATE_TOKEN_KEYWORD
         }

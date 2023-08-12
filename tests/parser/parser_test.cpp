@@ -3,34 +3,35 @@
 
 TEST(ParserTest, BasicAssertions)
 {
-	using namespace stacklang;
+	using namespace stacklang::lexer;
+	using namespace stacklang::parser;
 
 	const auto code = "push 1\npop x\njmp 1\n ji 2\nread\nwrite\nend\n+\n-\n*\n/\n%\n<\n<=\n>\n>=\n!=\n=";
 	auto parser = GetParser(code);
 	auto astGot = parser->GetAST();
 	std::vector<std::unique_ptr<BaseAstNode>> astExpected;
-	astExpected.emplace_back(MakeASTNode<SingleCommandAstNode>(Token::Type::PUSH,
-		MakeASTNodeAs<ValueableAstNode>(Token::Type::CONST, std::string("1"))));
-	astExpected.emplace_back(MakeASTNode<SingleCommandAstNode>(Token::Type::POP,
-		MakeASTNodeAs<ValueableAstNode>(Token::Type::VAR, std::string("x"))));
-	astExpected.emplace_back(MakeASTNode<SingleCommandAstNode>(Token::Type::JMP,
-		MakeASTNodeAs<ValueableAstNode>(Token::Type::VAR, std::string("1"))));
-	astExpected.emplace_back(MakeASTNode<SingleCommandAstNode>(Token::Type::JI,
-		MakeASTNodeAs<ValueableAstNode>(Token::Type::VAR, std::string("2"))));
-	astExpected.emplace_back(MakeASTNode<NoOperandCommandAstNode>(Token::Type::READ));
-	astExpected.emplace_back(MakeASTNode<NoOperandCommandAstNode>(Token::Type::WRITE));
-	astExpected.emplace_back(MakeASTNode<NoOperandCommandAstNode>(Token::Type::END));
-	astExpected.emplace_back(MakeASTNode<OperatorAstNode>(Token::Type::PLUS));
-	astExpected.emplace_back(MakeASTNode<OperatorAstNode>(Token::Type::MINUS));
-	astExpected.emplace_back(MakeASTNode<OperatorAstNode>(Token::Type::MULTIPLY));
-	astExpected.emplace_back(MakeASTNode<OperatorAstNode>(Token::Type::DIV));
-	astExpected.emplace_back(MakeASTNode<OperatorAstNode>(Token::Type::MOD));
-	astExpected.emplace_back(MakeASTNode<RelationAstNode>(Token::Type::LESS));
-	astExpected.emplace_back(MakeASTNode<RelationAstNode>(Token::Type::LESS_EQUAL));
-	astExpected.emplace_back(MakeASTNode<RelationAstNode>(Token::Type::GREATER));
-	astExpected.emplace_back(MakeASTNode<RelationAstNode>(Token::Type::GREATER_EQUAL));
-	astExpected.emplace_back(MakeASTNode<RelationAstNode>(Token::Type::NOT_EQUAL));
-	astExpected.emplace_back(MakeASTNode<RelationAstNode>(Token::Type::EQUAL));
+	astExpected.emplace_back(MakeASTNode<SingleCommandAstNode>(Token::Type::PUSH, 0,
+		MakeASTNodeAs<ValueableAstNode>(Token::Type::CONST, 0, std::string("1"))));
+	astExpected.emplace_back(MakeASTNode<SingleCommandAstNode>(Token::Type::POP, 0,
+		MakeASTNodeAs<ValueableAstNode>(Token::Type::VAR, 0, std::string("x"))));
+	astExpected.emplace_back(MakeASTNode<SingleCommandAstNode>(Token::Type::JMP, 0,
+		MakeASTNodeAs<ValueableAstNode>(Token::Type::VAR, 0, std::string("1"))));
+	astExpected.emplace_back(MakeASTNode<SingleCommandAstNode>(Token::Type::JI, 0,
+		MakeASTNodeAs<ValueableAstNode>(Token::Type::VAR, 0, std::string("2"))));
+	astExpected.emplace_back(MakeASTNode<NoOperandCommandAstNode>(Token::Type::READ, 0));
+	astExpected.emplace_back(MakeASTNode<NoOperandCommandAstNode>(Token::Type::WRITE, 0));
+	astExpected.emplace_back(MakeASTNode<NoOperandCommandAstNode>(Token::Type::END, 0));
+	astExpected.emplace_back(MakeASTNode<OperatorAstNode>(Token::Type::PLUS, 0));
+	astExpected.emplace_back(MakeASTNode<OperatorAstNode>(Token::Type::MINUS, 0));
+	astExpected.emplace_back(MakeASTNode<OperatorAstNode>(Token::Type::MULTIPLY, 0));
+	astExpected.emplace_back(MakeASTNode<OperatorAstNode>(Token::Type::DIV, 0));
+	astExpected.emplace_back(MakeASTNode<OperatorAstNode>(Token::Type::MOD, 0));
+	astExpected.emplace_back(MakeASTNode<RelationAstNode>(Token::Type::LESS, 0));
+	astExpected.emplace_back(MakeASTNode<RelationAstNode>(Token::Type::LESS_EQUAL, 0));
+	astExpected.emplace_back(MakeASTNode<RelationAstNode>(Token::Type::GREATER, 0));
+	astExpected.emplace_back(MakeASTNode<RelationAstNode>(Token::Type::GREATER_EQUAL, 0));
+	astExpected.emplace_back(MakeASTNode<RelationAstNode>(Token::Type::NOT_EQUAL, 0));
+	astExpected.emplace_back(MakeASTNode<RelationAstNode>(Token::Type::EQUAL, 0));
 	
 	EXPECT_TRUE(astGot.size() == astExpected.size());
 	for (std::size_t i = 0; i < astGot.size(); ++i)
@@ -55,7 +56,8 @@ TEST(ParserTest, BasicAssertions)
 }
 TEST(ParserErrorTest, BasicAssertions)
 {
-	using namespace stacklang;
+	using namespace stacklang::lexer;
+	using namespace stacklang::parser;
 
 	const auto code = "push write\npop 1\njmp x\n read x\n write 1\n";
 	auto parser = GetParser(code);

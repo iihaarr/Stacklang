@@ -1,0 +1,26 @@
+; is prime
+read
+pop x
+push 2
+pop y
+push y
+push x
+>=
+ji 23
+push x
+push y
+%
+push 0
+=
+ji 20
+push y
+push 1
++
+pop y
+jmp 5
+push 0
+write
+end
+push 1
+write
+end
