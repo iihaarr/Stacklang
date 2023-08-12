@@ -6,6 +6,7 @@
 namespace stacklang
 {
     static constexpr auto kNewLine = '\n';
+    static constexpr auto kCommentCh = ';';
     static constexpr std::size_t kMaxLenErrorStrHelp = 64;
 #define CREATE_TOKEN_KEYWORD(name, value) {Token::Type::name, value },
     static std::initializer_list<std::pair<Token::Type, std::string>> kKeywords
@@ -88,12 +89,17 @@ namespace stacklang
         std::size_t beginIdx = m_currentCharIdx;
         for(; m_currentCharIdx < m_code.size(); ++m_currentCharIdx)
         {
-            if(std::isalpha(currentChar())) return handleIdentifier();
-            if(std::isdigit(currentChar())) return handleConstant();
-            if(currentChar() == kNewLine) return handleNewLine();
-            if(std::isspace(currentChar())) continue;
+            if (std::isalpha(currentChar())) return handleIdentifier();
+            if (std::isdigit(currentChar())) return handleConstant();
+            if (currentChar() == kNewLine) return handleNewLine();
+            if (std::isspace(currentChar())) continue;
             if (isRelation(currentChar())) return handleRelation();
             if (isOperator(currentChar())) return handleOperator();
+            if (currentChar() == kCommentCh)
+            {
+                skipComment();
+                continue;
+            }
 
             Location locationUndefinedSymbol{beginIdx, m_currentCharIdx, m_currentLine};
             handleUnexpectedSymbol(locationUndefinedSymbol);
@@ -112,11 +118,12 @@ namespace stacklang
         std::size_t beginIdx = m_currentCharIdx;
         for(; m_currentCharIdx < m_code.size(); ++m_currentCharIdx)
         {
-            if(std::isalpha(m_code[m_currentCharIdx]))
+            auto curCh = currentChar();
+            if(std::isalpha(curCh))
             {
-                m_buffer.push_back(m_code[m_currentCharIdx]);
+                m_buffer.push_back(curCh);
             }
-            else if(std::isspace(m_code[m_currentCharIdx]))
+            else if(std::isspace(curCh) || curCh == kCommentCh)
             {
                 break;
             }
@@ -145,11 +152,12 @@ namespace stacklang
         std::size_t beginIdx = m_currentCharIdx;
         for(; m_currentCharIdx < m_code.size(); ++m_currentCharIdx)
         {
-            if(std::isdigit(m_code[m_currentCharIdx]))
+            auto curCh = currentChar();
+            if(std::isdigit(curCh))
             {
-                m_buffer.push_back(m_code[m_currentCharIdx]);
+                m_buffer.push_back(curCh);
             }
-            else if(std::isspace(m_code[m_currentCharIdx]))
+            else if(std::isspace(curCh) || curCh == kCommentCh)
             {
                 break;
             }
@@ -251,6 +259,10 @@ namespace stacklang
     void Lexer::skipError()
     {
         for (std::size_t i = m_currentCharIdx; !std::isspace(m_code[i]) && i < m_code.size(); ++i, ++m_currentCharIdx);
+    }
+    void Lexer::skipComment()
+    {
+        for (std::size_t i = m_currentCharIdx; currentChar() != kNewLine && i < m_code.size(); ++i, ++m_currentCharIdx);
     }
     void Lexer::printLineError(Location location_)
     {

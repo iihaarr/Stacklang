@@ -18,6 +18,7 @@ namespace stacklang
         void handleNotRelationWithoutOtherSymRel(Location location_);
         void handleRelationError(Location location_);
         void skipError();
+        void skipComment();
         void printLineError(Location location_);
         Token handleIdentifier();
         Token handleConstant();
