@@ -13,26 +13,18 @@ namespace stacklang
     {
 
     }
-/*
-    Token::Token(Token&& other_) noexcept
-        : m_type(std::move(other_.m_type)), m_location(std::move(other_.m_location)), m_text(std::move(other_.m_text))
+    const char* GetTokenDescription(Token::Type type_)
     {
-        other_.m_type = Type::ERROR;
-        other_.m_location = {};
-        other_.m_text = nullptr;
+        switch (type_)
+        {
+#define CREATE_TOKEN(name_, descr_) \
+        case Token::Type::name_: \
+            return descr_;
+#define CREATE_TOKEN_KEYWORD(name, value) CREATE_TOKEN(name, value)
+            TOKEN_LIST_KEYWORD
+            TOKEN_LIST
+#undef CREATE_TOKEN
+#undef CREATE_TOKEN_KEYWORD
+        }
     }
-
-    Token::Token(const Token& other_)
-        : m_type(other_.m_type), m_location(other_.m_location), m_text(std::make_unique<std::string>(*other_.m_text))
-    {
-
-    }
-    Token &Token::operator=(const Token& other_) {
-        if(this == &other_)
-            return *this;
-
-        m_type = other_.m_type;
-        m_location = other_.m_location;
-        return *this;
-    }*/
 }

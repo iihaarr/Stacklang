@@ -8,6 +8,7 @@ namespace stacklang
     struct ILexer
     {
         virtual Token NextToken() = 0;
+        virtual const std::string& GetCode() const = 0;
         virtual ~ILexer() = default;
     };
 

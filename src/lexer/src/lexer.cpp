@@ -103,6 +103,10 @@ namespace stacklang
         Location location{beginIdx, m_currentCharIdx, m_currentLine};
         return MakeToken(Token::Type::END_OF_FILE, location);
     }
+    const std::string& Lexer::GetCode() const
+    {
+        return m_code;
+    }
     Token Lexer::handleIdentifier()
     {
         std::size_t beginIdx = m_currentCharIdx;

@@ -12,6 +12,7 @@ namespace stacklang
     public:
         explicit Lexer(std::string_view code_);
         Token NextToken() override;
+        const std::string& GetCode() const override;
     private:
         void handleUnexpectedSymbol(Location location_);
         void handleNotRelationWithoutOtherSymRel(Location location_);

@@ -11,6 +11,7 @@ enable_testing()
 add_subdirectory(lib/googletest)
 
 add_subdirectory(src/lexer)
+add_subdirectory(src/parser)
 
 add_subdirectory(tests)
 add_executable(Stacklang src/main.cpp)

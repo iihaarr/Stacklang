@@ -39,6 +39,7 @@ namespace stacklang
     {
         return Token(std::forward<Args>(args_)...);
     }
+    const char* GetTokenDescription(Token::Type type_);
 }
 
 #endif //STACKLANG_TOKEN_HPP
