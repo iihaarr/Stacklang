@@ -5,7 +5,7 @@ namespace stacklang::interpreter
 {
 	struct Config
 	{
-		bool m_isPrintLexems;
+		bool m_isPrintLexems{ false };
 	};
 }
 #endif
